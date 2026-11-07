@@ -112,7 +112,15 @@ Remove any trailing or leading whitespaces. Don't just use a case statement for 
 Hint: you might need to use INSTR(product_name,'-') to find the hyphens. INSTR will help split the column. */
 --QUERY 5
 
-
+SELECT
+	product_name,
+	TRIM(
+		SUBSTR(
+			product_name,
+			NULLIF(INSTR(product_name, '-'), 0) + 1
+		)
+	) AS description
+FROM product;
 
 
 --END QUERY
@@ -121,7 +129,9 @@ Hint: you might need to use INSTR(product_name,'-') to find the hyphens. INSTR w
 /* 2. Filter the query to show any product_size value that contain a number with REGEXP. */
 --QUERY 6
 
-
+SELECT *
+FROM product
+WHERE product_size REGEXP '[0-9]';
 
 
 --END QUERY
@@ -138,7 +148,32 @@ HINT: There are a possibly a few ways to do this query, but if you're struggling
 with a UNION binding them. */
 --QUERY 7
 
+WITH day_sales AS (
+	SELECT
+		market_date,
+		SUM(quantity * cost_per_quantity) AS total_sales
+	FROM customer_purchases
+	GROUP BY market_date
+),
 
+ranked_sales AS (
+	SELECT
+		market_date,
+		total_sales,
+		RANK() OVER (ORDER BY total_sales DESC) AS best_day,
+		RANK() OVER (ORDER BY total_sales ASC) AS worst_day
+	FROM day_sales
+)
+
+SELECT market_date, total_sales
+FROM ranked_sales
+WHERE best_day = 1
+
+UNION
+
+SELECT market_date, total_sales
+FROM ranked_sales
+WHERE worst_day = 1;
 
 
 --END QUERY
