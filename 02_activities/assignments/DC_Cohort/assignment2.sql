@@ -23,7 +23,11 @@ Edit the appropriate columns -- you're making two edits -- and the NULL rows wil
 All the other rows will remain the same. */
 --QUERY 1
 
-
+SELECT 
+	product_name || ', ' || 
+	COALESCE(product_size, '') || ' (' || 
+	COALESCE(product_qty_type, 'unit') || ')'
+FROM product;
 
 
 --END QUERY
@@ -41,7 +45,15 @@ HINT: One of these approaches uses ROW_NUMBER() and one uses DENSE_RANK().
 Filter the visits to dates before April 29, 2022. */
 --QUERY 2
 
-
+SELECT
+	customer_id,
+	market_date,
+	DENSE_RANK() OVER (
+		PARTITION BY customer_id
+		ORDER BY market_date ASC
+	) AS visit_number
+FROM customer_purchases
+WHERE market_date < '2022-04-29';
 
 
 --END QUERY
@@ -53,8 +65,18 @@ only the customer’s most recent visit.
 HINT: Do not use the previous visit dates filter. */
 --QUERY 3
 
-
-
+SELECT *
+FROM (
+	SELECT DISTINCT
+		customer_id,
+		market_date,
+		DENSE_RANK() OVER (
+			PARTITION BY customer_id
+			ORDER BY market_date DESC
+		) AS visit_number
+	FROM customer_purchases
+)
+WHERE visit_number = 1;
 
 --END QUERY
 
@@ -66,7 +88,12 @@ You can make this a running count by including an ORDER BY within the PARTITION 
 Filter the visits to dates before April 29, 2022. */
 --QUERY 4
 
-
+SELECT *,
+	COUNT(*) OVER (
+		PARTITION BY customer_id, product_id
+	) AS purchase_count
+FROM customer_purchases
+WHERE market_date < '2022-04-29';
 
 
 --END QUERY
