@@ -48,8 +48,13 @@ There are several tools online you can use, I'd recommend [Draw.io](https://www.
 
 **HINT:** You do not need to create any data for this prompt. This is a conceptual model only. 
 
+**PROMPT 1 RESPONSE** 
+<img src="./images/02_bookstore_LDM.png" width="900">
+
 #### Prompt 2
 We want to create employee shifts, splitting up the day into morning and evening. Add this to the ERD.
+**UPDATED ERD WITH EMPLOYEE SHIFTS**
+<img src="./images/02_bookstore_LDM_shifts.png" width="900">
 
 #### Prompt 3
 The store wants to keep customer addresses. Propose two architectures for the CUSTOMER_ADDRESS table, one that will retain changes, and another that will overwrite. Which is type 1, which is type 2? 
@@ -57,7 +62,25 @@ The store wants to keep customer addresses. Propose two architectures for the CU
 **HINT:** search type 1 vs type 2 slowly changing dimensions. 
 
 ```
-Your answer...
+Type 1 SCDs:
+- overwrite old data with new data
+- use if you do not need to keep track of old data
+- saves storage space!
+
+customer_address (type 1)
+columns: customer_id, street_address, city, province, postal_code
+
+Once a change is applied, old data is lost!
+
+Type 2 SCDs:
+- preserves old data by creating new records for each change
+- e.g., if we want to understand migration patterns
+
+customer_address (type 2)
+columns: address_id, customer_id, street_address, city, province, postal_code, effective_date, end_date, is_current
+
+Current and previous addresses are stored under unique address_id for each customer. is_current is a binary column reflecting whether the address_id in question is current or not. 
+
 ```
 
 ***
