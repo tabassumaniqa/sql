@@ -194,8 +194,26 @@ How many customers are there (y).
 Before your final group by you should have the product of those two queries (x*y).  */
 --QUERY 8
 
-
-
+SELECT
+	v.vendor_name,
+	p.product_name,
+	COUNT(*) * 5 * vinv.original_price AS total_revenue
+FROM (
+	SELECT DISTINCT
+		vendor_id,
+		product_id,
+		original_price
+	FROM vendor_inventory
+) AS vinv
+INNER JOIN vendor as v
+	ON vinv.vendor_id = v.vendor_id
+INNER JOIN product AS p
+	ON vinv.product_id = p.product_id
+CROSS JOIN customer as c
+GROUP BY
+	v.vendor_id,
+	p.product_id,
+	vinv.original_price;
 
 --END QUERY
 
@@ -207,8 +225,19 @@ It should use all of the columns from the product table, as well as a new column
 Name the timestamp column `snapshot_timestamp`. */
 --QUERY 9
 
+CREATE TABLE product_units AS
+SELECT
+	*,
+	CURRENT_TIMESTAMP AS snapshot_timestamp
+FROM product
+WHERE product_qty_type = 'unit';
 
+/*
+to check new table:
 
+SELECT *
+FROM product_units;
+/*
 
 --END QUERY
 
@@ -217,7 +246,16 @@ Name the timestamp column `snapshot_timestamp`. */
 This can be any product you desire (e.g. add another record for Apple Pie). */
 --QUERY 10
 
+INSERT INTO product_units
+SELECT
+	product.*,
+	CURRENT_TIMESTAMP
+FROM product
+WHERE product_name = 'Apple Pie';
 
+SELECT *
+FROM product_units
+WHERE product_name = 'Apple Pie';
 
 
 --END QUERY
@@ -229,8 +267,18 @@ This can be any product you desire (e.g. add another record for Apple Pie). */
 HINT: If you don't specify a WHERE clause, you are going to have a bad time.*/
 --QUERY 11
 
-
-
+DELETE FROM product_units
+WHERE product_name = 'Apple Pie'
+AND snapshot_timestamp = (
+	SELECT MIN(snapshot_timestamp)
+	FROM product_units
+	WHERE product_name = 'Apple Pie'
+)
+AND snapshot_timestamp < (
+	SELECT MAX(snapshot_timestamp)
+	FROM product_units
+	WHERE product_name = 'Apple Pie'
+);
 
 --END QUERY
 
@@ -253,8 +301,27 @@ Finally, make sure you have a WHERE statement to update the right row,
 When you have all of these components, you can run the update statement. */
 --QUERY 12
 
+ALTER TABLE product_units
+ADD current_quantity INT;
 
+UPDATE product_units
+SET current_quantity = COALESCE((
+	SELECT vinv.quantity
+	FROM vendor_inventory AS vinv
+	WHERE vinv.product_id = product_units.product_id
+	ORDER BY vinv.market_date DESC
+	LIMIT 1
+), 0);
 
+/*
+-- check query
+
+SELECT
+    product_id,
+    product_name,
+    current_quantity
+FROM product_units;
+/*
 
 --END QUERY
 
