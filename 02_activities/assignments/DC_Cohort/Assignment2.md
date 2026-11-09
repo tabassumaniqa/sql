@@ -215,5 +215,13 @@ Consider, for example, concepts of labour, bias, LLM proliferation, moderating c
 
 
 ```
-Your thoughts...
+Some ethical issues that stood out to me in this piece are:
+
+1. Invisible labour and exploitation of graduate students and other people around the globe hired to complete tedious tasks (e.g., tagging countless images) for a few cents. AI, machinee learning, and neural nets heavily depend on the work of people who collect, label, and classify data. This hard work is rarely recognized and compensation for the work rarely reflects the value the work ultimately generates. For example, AI is often presented as something fully automated but this obscures the efforts of the people and organizations responsible for its outputs. On a similar note, it becomes hard to determine who is to be held accountable when AI makes harmful decisions.
+
+2. Subjectivity and bias (cultaral, societal, personal biases) of the persons carrying out the tedious work of labeling and classifying the training data can become embedded in AI systems. The section on ImageNet Roulette clearly demonstrates how such biases and sometimes even offensive behaviours can become a part of how an AI system behaves.
+
+Ultimately, the article emphasizes that AI is not independent of society; it reflects the decisions, labour, and values of the people involved in its development. Greater transparency and ethical oversight are therefore necessary to ensure that technological progress does not come at the expense of fairness and human well-being.
+
+3. 
 ```
